@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: nexapm-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-nexapm}
+      POSTGRES_USER: ${DB_USERNAME:-nexapm}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-nexapm_s3cur3!2026}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-nexapm} -d ${DB_NAME:-nexapm}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nexapm-net
+
+  nexapm-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nexapm-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-nexapm}
+      DB_USERNAME: ${DB_USERNAME:-nexapm}
+      DB_PASSWORD: ${DB_PASSWORD:-nexapm_s3cur3!2026}
+      JWT_SECRET: ${JWT_SECRET:-bmV4YXBtLXN1cGVyLXNlY3JldC1qd3Qta2V5LTIwMjYtbWluaW11bS0zMi1ieXRlcyE=}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-604800000}
+    ports:
+      - "8080:8080"
+    networks:
+      - nexapm-net
+
+volumes:
+  postgres_data:
+    name: nexapm_postgres_data
+
+networks:
+  nexapm-net:
+    name: nexapm-network
+    driver: bridge
