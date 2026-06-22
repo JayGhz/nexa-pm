@@ -6,9 +6,9 @@ import DashboardPage from '../pages/DashboardPage';
 import ProyectosPage from '../pages/ProyectosPage';
 
 import ProyectoDetailPage from '../pages/ProyectoDetailPage';
-const ClientesPage = () => <div>Clientes</div>;
-const ClienteDetailPage = () => <div>Cliente Detalle</div>;
-const ConsultoresPage = () => <div>Consultores</div>;
+import ClientesPage from '../pages/ClientesPage';
+import ClienteDetailPage from '../pages/ClienteDetailPage';
+import ConsultoresPage from '../pages/ConsultoresPage';
 import PerfilPage from '../pages/PerfilPage';
 
 export default function AppRouter() {

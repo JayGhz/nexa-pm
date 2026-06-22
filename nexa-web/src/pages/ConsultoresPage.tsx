@@ -4,54 +4,56 @@ import { getAsignaciones } from '../api/asignaciones';
 import type { Usuario, Asignacion } from '../types';
 import { PageSkeleton } from '../components/shared/PageSkeleton';
 import { EmptyState } from '../components/shared/EmptyState';
+import { ConsultorFormDialog } from '../components/shared/ConsultorFormDialog';
 import { StatCard } from '../components/shared/StatCard';
-import { Search, Users, MoreHorizontal, ShieldAlert, UserIcon, Briefcase, Clock, Activity } from 'lucide-react';
+import { Search, Users, MoreHorizontal, ShieldAlert, UserIcon, Briefcase, Clock, Activity, Plus } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Badge } from '../components/ui/badge';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { toast } from 'sonner';
+import { Button } from '../components/ui/button';
 
 export default function ConsultoresPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [asignaciones, setAsignaciones] = useState<Asignacion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      const [usersData, asigData] = await Promise.all([
+        getUsuarios(),
+        getAsignaciones()
+      ]);
+      const consultores = (usersData || []).filter(u => u.rol === 'CONSULTOR');
+      setUsuarios(consultores);
+      setAsignaciones(asigData || []);
+    } catch (error) {
+      toast.error('Error al cargar datos');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setIsLoading(true);
-        const [usersData, asigData] = await Promise.all([
-          getUsuarios(),
-          getAsignaciones()
-        ]);
-        // Solo mostrar consultores (o todos si lo prefiere el admin)
-        // El endpoint devuelve todos, pero como página es "Consultores", filtremos a rol CONSULTOR
-        const consultores = usersData.filter(u => u.rol === 'CONSULTOR');
-        setUsuarios(consultores);
-        setAsignaciones(asigData);
-      } catch (error) {
-        toast.error('Error al cargar datos');
-      } finally {
-        setIsLoading(false);
-      }
-    };
     loadData();
   }, []);
 
-  const filteredUsuarios = usuarios.filter(u => 
+  const filteredUsuarios = (usuarios || []).filter(u => 
     (u.nombre || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (u.correo || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getAsignacionesParaUsuario = (usuarioId: string) => {
-    return asignaciones.filter(a => a.usuarioId === usuarioId);
+    return (asignaciones || []).filter(a => a.usuarioId === usuarioId);
   };
 
-  const totalConsultores = usuarios.length;
-  const consultoresActivos = usuarios.filter(u => getAsignacionesParaUsuario(u.id).length > 0).length;
-  const totalHoras = asignaciones.reduce((acc, a) => acc + a.horasAsignadas, 0);
+  const totalConsultores = (usuarios || []).length;
+  const consultoresActivos = (usuarios || []).filter(u => getAsignacionesParaUsuario(u.id).length > 0).length;
+  const totalHoras = (asignaciones || []).reduce((acc, a) => acc + (a.horasAsignadas || 0), 0);
 
   if (isLoading) return <PageSkeleton />;
 
@@ -64,6 +66,10 @@ export default function ConsultoresPage() {
             Gestiona el equipo de consultores y sus asignaciones.
           </p>
         </div>
+        <Button onClick={() => setIsDialogOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Nuevo Consultor
+        </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3 mb-6">
@@ -156,6 +162,12 @@ export default function ConsultoresPage() {
           </Table>
         )}
       </div>
+
+      <ConsultorFormDialog 
+        open={isDialogOpen} 
+        onOpenChange={setIsDialogOpen} 
+        onSuccess={loadData} 
+      />
     </div>
   );
 }

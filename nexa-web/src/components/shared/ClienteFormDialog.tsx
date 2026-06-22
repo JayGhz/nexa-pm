@@ -76,7 +76,7 @@ export function ClienteFormDialog({ open, onOpenChange, clienteToEdit, onSuccess
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{clienteToEdit ? 'Editar Cliente' : 'Nuevo Cliente'}</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{clienteToEdit ? 'Editar Cliente' : 'Nuevo Cliente'}</DialogTitle>
           <DialogDescription>
             {clienteToEdit ? 'Actualiza los datos del cliente.' : 'Registra un nuevo cliente corporativo.'}
           </DialogDescription>

@@ -20,7 +20,7 @@ import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
 const asignacionSchema = z.object({
-  usuarioId: z.string().uuid('Seleccione un consultor'),
+  usuarioId: z.string().min(1, 'Seleccione un consultor'),
   horasAsignadas: z.coerce.number().min(1, 'Mínimo 1 hora'),
 });
 

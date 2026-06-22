@@ -2,14 +2,14 @@ import { useState, type CSSProperties } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { login } from '../api/auth';
 import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { Logo } from '../components/shared/Logo';
 
@@ -72,7 +72,9 @@ const STREAKS = [
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const {
@@ -91,7 +93,8 @@ export default function LoginPage() {
       toast.success(`Bienvenido, ${res.usuario.nombre}`);
       navigate('/');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+      const errorMsg = error.response?.data?.message || 'Error al iniciar sesión. Verifica tus credenciales.';
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -243,7 +246,7 @@ export default function LoginPage() {
 
         .nexa-particle {
           filter: blur(var(--particleBlur));
-          animation: particleFloat ease-in-out infinite;
+          animation: particleFloat ease-in-out infinite both;
           box-shadow:
             0 0 16px hsl(var(--primary) / 0.45),
             0 0 34px hsl(var(--primary) / 0.18);
@@ -252,7 +255,7 @@ export default function LoginPage() {
         .nexa-streak {
           height: 1px;
           background: linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.45) 48%, transparent 100%);
-          animation: streakMove linear infinite;
+          animation: streakMove linear infinite both;
           filter: drop-shadow(0 0 12px hsl(var(--primary) / 0.42));
         }
 
@@ -262,17 +265,19 @@ export default function LoginPage() {
       `}</style>
 
       <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute inset-[-18%] nexa-gradient" />
-        <div className="absolute inset-0 nexa-grid opacity-65" />
+        <div key={location.key || 'bg-blobs'} className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-[-18%] nexa-gradient" />
+          <div className="absolute inset-0 nexa-grid opacity-65" />
 
-        <div className="nexa-blob-one absolute left-[-220px] top-[7%] h-[560px] w-[560px] rounded-full bg-primary/24 blur-[125px]" />
-        <div className="nexa-blob-two absolute right-[-260px] bottom-[-210px] h-[720px] w-[720px] rounded-full bg-primary/28 blur-[145px]" />
-        <div className="nexa-blob-three absolute left-[43%] top-[22%] h-[470px] w-[470px] rounded-full bg-primary/18 blur-[130px]" />
+          <div className="nexa-blob-one absolute left-[-220px] top-[7%] h-[560px] w-[560px] rounded-full bg-primary/24 blur-[125px]" />
+          <div className="nexa-blob-two absolute right-[-260px] bottom-[-210px] h-[720px] w-[720px] rounded-full bg-primary/28 blur-[145px]" />
+          <div className="nexa-blob-three absolute left-[43%] top-[22%] h-[470px] w-[470px] rounded-full bg-primary/18 blur-[130px]" />
 
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.32)_50%,rgba(248,250,252,0.66)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.32)_50%,rgba(248,250,252,0.66)_100%)]" />
+        </div>
       </div>
 
-      <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
+      <div key={location.key || 'particles'} className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
         {PARTICLES.map((particle, index) => (
           <span
             key={index}
@@ -376,13 +381,22 @@ export default function LoginPage() {
                     </a>
                   </div>
 
-                  <Input
-                    id="contrasena"
-                    type="password"
-                    placeholder="••••••••"
-                    {...register('contrasena')}
-                    className={`bg-white/60 backdrop-blur-md border-blue-200/50 text-slate-900 placeholder:text-slate-400 hover:bg-white/75 focus-visible:bg-white focus-visible:ring-primary transition-all shadow-sm ${errors.contrasena ? 'border-destructive focus-visible:ring-destructive' : ''}`}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="contrasena"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      {...register('contrasena')}
+                      className={`bg-white/60 backdrop-blur-md border-blue-200/50 text-slate-900 placeholder:text-slate-400 hover:bg-white/75 focus-visible:bg-white focus-visible:ring-primary transition-all shadow-sm pr-10 ${errors.contrasena ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors focus:outline-none"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
 
                   {errors.contrasena && (
                     <p className="text-sm text-destructive font-medium">{errors.contrasena.message}</p>

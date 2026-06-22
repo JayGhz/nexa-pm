@@ -12,4 +12,6 @@ public interface RegistroHorasRepository extends JpaRepository<RegistroHoras, Lo
     
     @Query("SELECT r FROM RegistroHoras r JOIN FETCH r.proyecto WHERE r.fecha >= :fechaInicio ORDER BY r.fecha ASC")
     List<RegistroHoras> findByFechaGreaterThanEqualWithProyecto(@Param("fechaInicio") LocalDate fechaInicio);
+
+    List<RegistroHoras> findByProyectoIdOrderByFechaDesc(java.util.UUID proyectoId);
 }

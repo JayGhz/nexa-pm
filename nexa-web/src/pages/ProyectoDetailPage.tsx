@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getProyecto, deleteProyecto } from '../api/proyectos';
 import { getSeguimientosByProyecto } from '../api/seguimientos';
 import { getAsignacionesByProyecto } from '../api/asignaciones';
-import type { Proyecto, Seguimiento, Asignacion } from '../types';
+import { getHistorialHoras } from '../api/registroHoras';
+import type { Proyecto, Seguimiento, Asignacion, RegistroHoras } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency, formatDate } from '../lib/utils';
 import { StatusBadge } from '../components/shared/StatusBadge';
@@ -11,6 +12,7 @@ import { PageSkeleton } from '../components/shared/PageSkeleton';
 import { ProyectoFormDialog } from '../components/shared/ProyectoFormDialog';
 import { SeguimientoFormDialog } from '../components/shared/SeguimientoFormDialog';
 import { AsignacionFormDialog } from '../components/shared/AsignacionFormDialog';
+import { RegistroHorasDialog } from '../components/shared/RegistroHorasDialog';
 import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardAction } from '../components/ui/card';
@@ -29,21 +31,35 @@ export default function ProyectoDetailPage() {
   const [proyecto, setProyecto] = useState<Proyecto | null>(null);
   const [seguimientos, setSeguimientos] = useState<Seguimiento[]>([]);
   const [asignaciones, setAsignaciones] = useState<Asignacion[]>([]);
+  const [registroHoras, setRegistroHoras] = useState<RegistroHoras[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Modals state
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSeguimientoOpen, setIsSeguimientoOpen] = useState(false);
   const [isAsignacionOpen, setIsAsignacionOpen] = useState(false);
+  const [isRegistroHorasOpen, setIsRegistroHorasOpen] = useState(false);
+
+  // Pagination for horas
+  const [horasPage, setHorasPage] = useState(1);
+  const horasPerPage = 5;
+
+  const currentHoras = useMemo(() => {
+    const startIndex = (horasPage - 1) * horasPerPage;
+    return registroHoras.slice(startIndex, startIndex + horasPerPage);
+  }, [registroHoras, horasPage]);
+
+  const totalHorasPages = Math.ceil(registroHoras.length / horasPerPage);
 
   const loadData = async () => {
     if (!id) return;
     try {
       setIsLoading(true);
-      const [projData, segData, asigData] = await Promise.all([
+      const [projData, segData, asigData, horasData] = await Promise.all([
         getProyecto(id),
         getSeguimientosByProyecto(id),
-        getAsignacionesByProyecto(id)
+        getAsignacionesByProyecto(id),
+        getHistorialHoras(id)
       ]);
       setProyecto(projData);
       // Deduplicar seguimientos por si la base de datos retorna registros duplicados
@@ -61,6 +77,7 @@ export default function ProyectoDetailPage() {
       // Sort by newest first
       setSeguimientos(uniqueSegs.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()));
       setAsignaciones(asigData);
+      setRegistroHoras(horasData);
     } catch (error) {
       toast.error('Error al cargar los detalles del proyecto');
       navigate('/proyectos');
@@ -102,6 +119,40 @@ export default function ProyectoDetailPage() {
     
     return { timeProgress, daysLeft, totalDays };
   }, [proyecto]);
+
+  const chartData = useMemo(() => {
+    if (!proyecto || seguimientos.length === 0) return [];
+    
+    // seguimientos is newest first, so we reverse it for the chart
+    const data = [...seguimientos].reverse();
+    const firstDate = new Date(data[0].fecha).getTime();
+    const startDate = new Date(proyecto.fechaInicio).getTime();
+    
+    // If the first tracking is after the project start date, prepend a 0% progress at start date
+    if (firstDate > startDate) {
+      data.unshift({
+        id: 'start-point',
+        fecha: proyecto.fechaInicio,
+        avance: 0,
+        comentario: 'Inicio del proyecto',
+        usuarioNombre: 'Sistema',
+      } as any);
+    } else if (data.length === 1) {
+      // If there's exactly 1 point and it's on or before start date, Recharts won't draw a line.
+      // Append a dummy point for today to draw a flat line.
+      const now = new Date();
+      if (now.getTime() > firstDate) {
+        data.push({
+          ...data[0],
+          id: 'current-point',
+          fecha: now.toISOString(),
+          comentario: 'Progreso actual',
+        } as any);
+      }
+    }
+    
+    return data;
+  }, [seguimientos, proyecto]);
 
   if (isLoading || !proyecto) return <PageSkeleton />;
 
@@ -206,7 +257,7 @@ export default function ProyectoDetailPage() {
             {seguimientos.length > 0 ? (
               <div className="h-[300px] w-full mt-4" style={{ minWidth: 0 }}>
                 <ResponsiveContainer width="100%" height="100%" minHeight={300}>
-                  <AreaChart data={[...seguimientos].reverse()} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorAvance" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.4}/>
@@ -224,7 +275,9 @@ export default function ProyectoDetailPage() {
                     />
                     <YAxis tickLine={false} axisLine={false} fontSize={12} domain={[0, 100]} />
                     <Tooltip 
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px', fontFamily: 'inherit' }}
+                      itemStyle={{ fontSize: '12px' }}
+                      labelStyle={{ fontSize: '12px' }}
                       labelFormatter={(label) => new Date(label as string).toLocaleDateString()}
                       formatter={(value: number) => [`${value}%`, 'Avance']}
                     />
@@ -318,6 +371,73 @@ export default function ProyectoDetailPage() {
         </CardContent>
       </Card>
 
+      {/* HORAS TABLE */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardTitle>Historial de Horas Registradas</CardTitle>
+          {(isAdmin || asignaciones.some(a => a.usuarioId === usuario?.id)) && (
+            <Button className="h-9 px-4 py-2 text-sm shrink-0" onClick={() => setIsRegistroHorasOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" /> Registrar Horas
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Fecha</TableHead>
+                <TableHead>Consultor</TableHead>
+                <TableHead>Horas</TableHead>
+                <TableHead>Descripción</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {currentHoras.length > 0 ? (
+                currentHoras.map((reg) => (
+                  <TableRow key={reg.id}>
+                    <TableCell className="font-medium">{formatDate(reg.fecha)}</TableCell>
+                    <TableCell>{reg.consultorNombre}</TableCell>
+                    <TableCell>{reg.horasTrabajadas} hrs</TableCell>
+                    <TableCell className="text-muted-foreground">{reg.descripcion}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+                    Sin horas registradas.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+
+          {/* Pagination controls */}
+          {totalHorasPages > 1 && (
+            <div className="flex items-center justify-end space-x-2 mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setHorasPage(p => Math.max(1, p - 1))}
+                disabled={horasPage === 1}
+              >
+                Anterior
+              </Button>
+              <div className="text-sm text-muted-foreground">
+                Página {horasPage} de {totalHorasPages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setHorasPage(p => Math.min(totalHorasPages, p + 1))}
+                disabled={horasPage === totalHorasPages}
+              >
+                Siguiente
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* MODALS */}
       {proyecto && (
         <ProyectoFormDialog
@@ -339,6 +459,15 @@ export default function ProyectoDetailPage() {
         proyectoId={id!}
         onSuccess={loadData}
       />
+      {proyecto && (
+        <RegistroHorasDialog
+          open={isRegistroHorasOpen}
+          onOpenChange={setIsRegistroHorasOpen}
+          proyectoId={id!}
+          proyectoNombre={proyecto.nombre}
+          onRegistroSuccess={loadData}
+        />
+      )}
     </div>
   );
 }

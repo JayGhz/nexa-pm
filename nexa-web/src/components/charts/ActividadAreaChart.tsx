@@ -70,7 +70,7 @@ export function ActividadAreaChart({ historial }: ActividadAreaChartProps) {
       <CardContent className="flex-1 mt-2">
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 mb-6 px-1">
           {proyectosLista.map((proyecto, index) => (
-            <div key={proyecto} className="flex items-center gap-2 text-sm text-muted-foreground max-w-[200px]" title={proyecto}>
+            <div key={proyecto} className="flex items-center gap-2 text-xs text-muted-foreground max-w-[200px]" title={proyecto}>
               <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: colores[index % colores.length] }} />
               <span className="truncate">{proyecto}</span>
             </div>
@@ -82,35 +82,35 @@ export function ActividadAreaChart({ historial }: ActividadAreaChartProps) {
               <defs>
                 {proyectosLista.map((proyecto, index) => (
                   <linearGradient key={proyecto} id={`color-${index}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={colores[index % colores.length]} stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor={colores[index % colores.length]} stopOpacity={0}/>
+                    <stop offset="5%" stopColor={colores[index % colores.length]} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={colores[index % colores.length]} stopOpacity={0} />
                   </linearGradient>
                 ))}
               </defs>
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="fecha" 
-                tickLine={false} 
-                axisLine={false} 
-                fontSize={12} 
-                tickMargin={10} 
+              <XAxis
+                dataKey="fecha"
+                tickLine={false}
+                axisLine={false}
+                fontSize={12}
+                tickMargin={10}
                 minTickGap={30}
                 tickFormatter={(value) => new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
               />
               <YAxis tickLine={false} axisLine={false} fontSize={12} domain={[0, 'auto']} />
-              <Tooltip 
+              <Tooltip
                 cursor={{ strokeDasharray: '3 3' }}
                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px', fontFamily: 'inherit' }}
                 labelFormatter={(label) => new Date(label as string).toLocaleDateString()}
               />
               {proyectosLista.map((proyecto, index) => (
-                <Area 
+                <Area
                   key={proyecto}
-                  type="monotone" 
-                  dataKey={proyecto} 
-                  stroke={colores[index % colores.length]} 
-                  fillOpacity={1} 
-                  fill={`url(#color-${index})`} 
+                  type="monotone"
+                  dataKey={proyecto}
+                  stroke={colores[index % colores.length]}
+                  fillOpacity={1}
+                  fill={`url(#color-${index})`}
                 />
               ))}
             </AreaChart>

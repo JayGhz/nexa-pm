@@ -11,10 +11,13 @@ import { ProyectosPorClienteChart } from '../components/charts/ProyectosPorClien
 import { ActividadAreaChart } from '../components/charts/ActividadAreaChart';
 import { PresupuestoPorEstadoChart } from '../components/charts/PresupuestoPorEstadoChart';
 import { toast } from 'sonner';
+import { useAuthStore } from '../store/authStore';
 
 export default function DashboardPage() {
   const [resumen, setResumen] = useState<DashboardResumen | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { usuario } = useAuthStore();
+  const isAdmin = usuario?.rol === 'ADMIN';
 
   useEffect(() => {
     const loadDashboard = async () => {
@@ -44,22 +47,26 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className={`grid gap-4 md:grid-cols-2 ${isAdmin ? 'lg:grid-cols-4' : 'lg:grid-cols-2'}`}>
         <StatCard 
           title="Proyectos Activos" 
           value={resumen.totalProyectosActivos} 
           icon={Briefcase} 
         />
-        <StatCard 
-          title="Presupuesto Total" 
-          value={formatCurrency(resumen.presupuestoTotal)} 
-          icon={DollarSign} 
-        />
-        <StatCard 
-          title="Consultores" 
-          value={resumen.totalConsultores} 
-          icon={Users} 
-        />
+        {isAdmin && (
+          <StatCard 
+            title="Presupuesto Total" 
+            value={formatCurrency(resumen.presupuestoTotal)} 
+            icon={DollarSign} 
+          />
+        )}
+        {isAdmin && (
+          <StatCard 
+            title="Consultores" 
+            value={resumen.totalConsultores} 
+            icon={Users} 
+          />
+        )}
         <StatCard 
           title="Proyectos Completados" 
           value={resumen.proyectosCompletados} 
@@ -67,31 +74,54 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="md:col-span-1 h-full flex flex-col">
-          <EstadosDonutChart data={resumen.proyectosPorEstado} />
-        </div>
-        <div className="md:col-span-2 h-full flex flex-col">
-          {resumen.proyectos && (
-            <PresupuestoBarChart proyectos={resumen.proyectos} />
-          )}
-        </div>
-      </div>
-      
-      <div>
-        {resumen.historialActividad && (
-          <ActividadAreaChart historial={resumen.historialActividad} />
-        )}
-      </div>
+      {isAdmin ? (
+        <>
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="md:col-span-1 h-full flex flex-col">
+              <EstadosDonutChart data={resumen.proyectosPorEstado} />
+            </div>
+            <div className="md:col-span-2 h-full flex flex-col">
+              {resumen.proyectos && (
+                <PresupuestoBarChart proyectos={resumen.proyectos} />
+              )}
+            </div>
+          </div>
+          
+          <div>
+            {resumen.historialActividad && (
+              <ActividadAreaChart historial={resumen.historialActividad} />
+            )}
+          </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {resumen.proyectos && (
-          <>
-            <ProyectosPorClienteChart proyectos={resumen.proyectos} />
-            <PresupuestoPorEstadoChart proyectos={resumen.proyectos} />
-          </>
-        )}
-      </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            {resumen.proyectos && (
+              <>
+                <ProyectosPorClienteChart proyectos={resumen.proyectos} />
+                <PresupuestoPorEstadoChart proyectos={resumen.proyectos} />
+              </>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="h-full flex flex-col">
+              <EstadosDonutChart data={resumen.proyectosPorEstado} />
+            </div>
+            <div className="h-full flex flex-col">
+              {resumen.proyectos && (
+                <ProyectosPorClienteChart proyectos={resumen.proyectos} />
+              )}
+            </div>
+          </div>
+          
+          <div>
+            {resumen.historialActividad && (
+              <ActividadAreaChart historial={resumen.historialActividad} />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

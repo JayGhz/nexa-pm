@@ -4,10 +4,11 @@ import api from '../api/axios';
 import type { Cliente } from '../types';
 import { PageSkeleton } from '../components/shared/PageSkeleton';
 import { EmptyState } from '../components/shared/EmptyState';
+import { StatCard } from '../components/shared/StatCard';
 import { ClienteFormDialog } from '../components/shared/ClienteFormDialog';
-import { Building2, Search, Plus, Mail, Phone, MoreVertical, Edit2, Trash2, Building } from 'lucide-react';
+import { Building2, Search, Plus, Mail, Phone, MoreVertical, Edit2, Trash2, Building, BarChart3 } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Input } from '../ui/input';
+import { Input } from '../components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import {
   DropdownMenu,
@@ -33,7 +34,7 @@ export default function ClientesPage() {
     try {
       setIsLoading(true);
       const data = await getClientes();
-      setClientes(data);
+      setClientes(data || []);
     } catch (error) {
       toast.error('Error al cargar los clientes');
     } finally {
@@ -56,7 +57,7 @@ export default function ClientesPage() {
     }
   };
 
-  const filteredClientes = clientes.filter(c => 
+  const filteredClientes = (clientes || []).filter(c => 
     (c.razonSocial || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (c.sector || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -70,6 +71,9 @@ export default function ClientesPage() {
     setClienteToEdit(cliente);
     setIsDialogOpen(true);
   };
+
+  const totalClientes = (clientes || []).length;
+  const sectoresUnicos = new Set((clientes || []).map(c => c.sector).filter(Boolean)).size;
 
   if (isLoading) return <PageSkeleton />;
 
@@ -87,6 +91,19 @@ export default function ClientesPage() {
           <Plus className="mr-2 h-4 w-4" />
           Nuevo Cliente
         </Button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 mb-6">
+        <StatCard
+          title="Total de Clientes"
+          value={totalClientes}
+          icon={Building2}
+        />
+        <StatCard
+          title="Sectores Atendidos"
+          value={sectoresUnicos}
+          icon={BarChart3}
+        />
       </div>
 
       <div className="flex items-center gap-2 max-w-sm">

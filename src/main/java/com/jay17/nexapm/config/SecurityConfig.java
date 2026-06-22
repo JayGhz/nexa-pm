@@ -66,9 +66,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/proyectos/mis-proyectos").hasRole("CONSULTOR")
                         .requestMatchers(HttpMethod.POST, "/seguimiento").hasAnyRole("ADMIN", "CONSULTOR")
                         .requestMatchers(HttpMethod.PUT, "/seguimiento/**").hasAnyRole("ADMIN", "CONSULTOR")
+                        .requestMatchers("/registro-horas/**").hasAnyRole("ADMIN", "CONSULTOR")
                         // Admin: gestión completa
                         .requestMatchers("/usuarios/**").hasRole("ADMIN")
-                        .requestMatchers("/dashboard/**").hasRole("ADMIN")
+                        .requestMatchers("/dashboard/**").hasAnyRole("ADMIN", "CONSULTOR")
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

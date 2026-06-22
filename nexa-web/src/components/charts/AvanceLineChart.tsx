@@ -49,6 +49,17 @@ export function AvanceLineChart({ proyectos }: AvanceLineChartProps) {
     avance: h.avance
   }));
 
+  if (chartData.length === 1) {
+    const firstDate = new Date(chartData[0].fecha).getTime();
+    const now = new Date();
+    if (now.getTime() > firstDate) {
+      chartData.push({
+        fecha: now.toISOString(),
+        avance: chartData[0].avance
+      });
+    }
+  }
+
   const color = "#3B82F6"; // Blue
 
   return (

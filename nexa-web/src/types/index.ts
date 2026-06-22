@@ -89,7 +89,36 @@ export interface DashboardResumen {
   proyectosCompletados: number;
   proyectosPorEstado: Record<string, number>;
   avancePromedioGeneral: number;
-  proyectosRecientes: ProyectoResumen[];
-  historialActividad?: ActividadDiariaDTO[];
+  proyectosRecientes: {
+    id: string;
+    nombre: string;
+    estado: string;
+    clienteNombre: string;
+    ultimoAvance: number;
+    historial: { fecha: string; avance: number }[];
+  }[];
+  historialActividad: {
+    fecha: string;
+    proyectos: Record<string, number>;
+  }[];
   proyectos?: Proyecto[];
+}
+
+export interface RegistroHoras {
+  id: number;
+  proyectoId: string;
+  proyectoNombre: string;
+  consultorId: string;
+  consultorNombre: string;
+  fecha: string;
+  horasTrabajadas: number;
+  descripcion: string;
+  fechaCreacion: string;
+}
+
+export interface RegistroHorasRequest {
+  proyectoId: string;
+  fecha: string;
+  horasTrabajadas: number;
+  descripcion: string;
 }
