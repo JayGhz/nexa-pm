@@ -3,7 +3,11 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url === '/favicon.ico') return res.status(404).end();
 
-  const baseUrl = process.env.AWS_API_URL || 'http://localhost:8080';
+  const baseUrl = process.env.AWS_API_URL;
+
+  if (!baseUrl) {
+    return res.status(500).json({ error: 'Falta la variable AWS_API_URL en Vercel' });
+  }
 
   const targetUrl = `${baseUrl}${req.url}`;
 
