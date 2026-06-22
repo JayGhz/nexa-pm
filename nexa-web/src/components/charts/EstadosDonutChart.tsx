@@ -1,4 +1,4 @@
-import { Cell, Label, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
+import { Label, Pie, PieChart } from "recharts"
 import {
   Card,
   CardContent,
@@ -45,7 +45,7 @@ export function EstadosDonutChart({ data }: EstadosDonutChartProps) {
   const chartData = Object.entries(data).map(([key, value]) => ({
     estado: key,
     proyectos: value,
-    fill: chartConfig[key as keyof typeof chartConfig]?.color || "hsl(var(--chart-5))",
+    fill: (chartConfig as any)[key]?.color || "hsl(var(--chart-5))",
   }));
 
   const totalProyectos = chartData.reduce((acc, curr) => acc + curr.proyectos, 0)

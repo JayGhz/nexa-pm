@@ -1,15 +1,10 @@
-import { SidebarTrigger } from '../ui/sidebar';
-import { Separator } from '../ui/separator';
 import { useAuthStore } from '../../store/authStore';
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuGroup,
 } from '../ui/dropdown-menu';
 import { useNavigate } from 'react-router-dom';
 

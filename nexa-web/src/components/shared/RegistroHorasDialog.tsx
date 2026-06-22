@@ -50,7 +50,7 @@ export function RegistroHorasDialog({
     reset,
     formState: { errors },
   } = useForm<RegistroHorasForm>({
-    resolver: zodResolver(registroHorasSchema),
+    resolver: zodResolver(registroHorasSchema) as any,
     defaultValues: {
       fecha: new Date().toISOString().split('T')[0],
       horasTrabajadas: 8,

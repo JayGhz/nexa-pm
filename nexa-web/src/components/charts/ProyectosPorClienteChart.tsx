@@ -54,7 +54,7 @@ export function ProyectosPorClienteChart({ proyectos }: ProyectosPorClienteChart
               />
               <Tooltip 
                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px', fontFamily: 'inherit' }}
-                formatter={(value: number) => [`${value} proyectos`, "Cantidad"]}
+                formatter={(value: any) => [value, "Proyectos"]}
               />
             </RadarChart>
           </ResponsiveContainer>

@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select"
+import { formatDate } from "../../lib/utils"
 import type { ProyectoResumen } from "../../types"
 
 interface AvanceLineChartProps {
@@ -69,7 +70,7 @@ export function AvanceLineChart({ proyectos }: AvanceLineChartProps) {
           <CardTitle>Avance Histórico</CardTitle>
           <CardDescription>Evolución interactiva del progreso</CardDescription>
         </div>
-        <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+        <Select value={selectedProjectId} onValueChange={(val) => val && setSelectedProjectId(val)}>
           <SelectTrigger className="w-[200px] bg-background">
             <SelectValue placeholder="Selecciona un proyecto" />
           </SelectTrigger>
@@ -115,11 +116,8 @@ export function AvanceLineChart({ proyectos }: AvanceLineChartProps) {
               <Tooltip 
                 cursor={{ strokeDasharray: '3 3' }}
                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px', fontFamily: 'inherit' }}
-                labelFormatter={(label) => {
-                   const d = new Date(label as string);
-                   return d.toLocaleDateString();
-                }}
-                formatter={(value: number) => [`${value}%`, "Avance"]}
+                formatter={(value: any) => [`${value}%`, 'Avance']}
+                labelFormatter={(label) => formatDate(label as string)}
               />
               <Area 
                 type="monotone" 

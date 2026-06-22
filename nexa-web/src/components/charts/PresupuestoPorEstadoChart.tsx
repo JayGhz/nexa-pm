@@ -54,7 +54,7 @@ export function PresupuestoPorEstadoChart({ proyectos }: PresupuestoPorEstadoCha
               <Tooltip 
                 cursor={{ fill: "transparent" }}
                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px', fontFamily: 'inherit' }}
-                formatter={(value: number) => [`S/ ${(value).toLocaleString()}`, "Inversión"]}
+                formatter={(value: any) => [`S/ ${(value as number).toLocaleString()}`, "Inversión"]}
               />
               <Bar dataKey="valor" radius={[4, 4, 0, 0]} barSize={40}>
                 {chartData.map((entry, index) => (

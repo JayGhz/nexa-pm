@@ -97,10 +97,7 @@ export interface DashboardResumen {
     ultimoAvance: number;
     historial: { fecha: string; avance: number }[];
   }[];
-  historialActividad: {
-    fecha: string;
-    proyectos: Record<string, number>;
-  }[];
+  historialActividad: ActividadDiariaDTO[];
   proyectos?: Proyecto[];
 }
 

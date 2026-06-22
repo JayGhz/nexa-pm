@@ -36,7 +36,7 @@ export function SeguimientoFormDialog({ open, onOpenChange, proyectoId, onSucces
   const [isLoading, setIsLoading] = useState(false);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<SeguimientoFormValues>({
-    resolver: zodResolver(seguimientoSchema),
+    resolver: zodResolver(seguimientoSchema) as any,
     defaultValues: {
       avance: 0,
       fecha: new Date().toISOString().split('T')[0]

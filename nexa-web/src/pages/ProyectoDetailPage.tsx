@@ -15,7 +15,7 @@ import { AsignacionFormDialog } from '../components/shared/AsignacionFormDialog'
 import { RegistroHorasDialog } from '../components/shared/RegistroHorasDialog';
 import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardAction } from '../components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { 
   ArrowLeft, Edit, Trash2, Plus, Users, Calendar, DollarSign, Activity, Building, Clock
@@ -275,11 +275,8 @@ export default function ProyectoDetailPage() {
                     />
                     <YAxis tickLine={false} axisLine={false} fontSize={12} domain={[0, 100]} />
                     <Tooltip 
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px', fontFamily: 'inherit' }}
-                      itemStyle={{ fontSize: '12px' }}
-                      labelStyle={{ fontSize: '12px' }}
-                      labelFormatter={(label) => new Date(label as string).toLocaleDateString()}
-                      formatter={(value: number) => [`${value}%`, 'Avance']}
+                      formatter={(value: any) => [`${value}%`, 'Avance']}
+                      labelFormatter={(label) => formatDate(label as string)}
                     />
                     <Area type="monotone" dataKey="avance" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorAvance)" />
                   </AreaChart>

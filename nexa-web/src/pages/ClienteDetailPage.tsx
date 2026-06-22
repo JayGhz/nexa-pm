@@ -4,7 +4,7 @@ import { getCliente } from '../api/clientes';
 import api from '../api/axios';
 import type { Cliente, Proyecto } from '../types';
 import { PageSkeleton } from '../components/shared/PageSkeleton';
-import { formatCurrency, formatDate } from '../lib/utils';
+import { formatCurrency } from '../lib/utils';
 import { StatusBadge } from '../components/shared/StatusBadge';
 import { ArrowLeft, Building2, Mail, Phone, MapPin, Briefcase } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -30,7 +30,7 @@ export default function ClienteDetailPage() {
         // This endpoint doesn't explicitly exist in the backend plan but we can filter all projects
         // Or assume there's a way. Let's fetch all and filter for now as a workaround for the UI demonstration.
         const res = await api.get<Proyecto[]>('/proyectos');
-        const projCliente = res.data.filter(p => p.cliente.id === id);
+        const projCliente = res.data.filter(p => p.clienteId === id);
         setProyectos(projCliente);
       } catch (error) {
         toast.error('Error al cargar detalles del cliente');
@@ -59,6 +59,7 @@ export default function ClienteDetailPage() {
           <div>
             <h2 className="text-3xl font-heading font-bold tracking-tight">{cliente.razonSocial}</h2>
             <p className="text-muted-foreground">{cliente.sector}</p>
+            <p className="text-sm text-muted-foreground mt-2">Proyectos: {proyectos.length}</p>
           </div>
         </div>
       </div>

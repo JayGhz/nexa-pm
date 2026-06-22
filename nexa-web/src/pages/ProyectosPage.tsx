@@ -3,7 +3,7 @@ import { getProyectos, getMisProyectos, deleteProyecto } from '../api/proyectos'
 import type { Proyecto } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { StatusBadge } from '../components/shared/StatusBadge';
-import { formatCurrency, formatDate } from '../lib/utils';
+import { formatCurrency } from '../lib/utils';
 import { PageSkeleton } from '../components/shared/PageSkeleton';
 import { EmptyState } from '../components/shared/EmptyState';
 import { StatCard } from '../components/shared/StatCard';
@@ -15,8 +15,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuGroup,
 } from '../components/ui/dropdown-menu';
@@ -205,9 +203,8 @@ export default function ProyectosPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="sr-only">Abrir menú</span>
+                      <DropdownMenuTrigger>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>

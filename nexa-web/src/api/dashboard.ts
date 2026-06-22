@@ -43,7 +43,7 @@ export const getDashboardResumen = async (): Promise<DashboardResumen> => {
       if (p.estado === 'FINALIZADO') completados++;
     });
     
-    const recientes = [...proyectos].sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()).slice(0, 5);
+    const recientes = [...proyectos].sort((a, b) => new Date(b.fechaInicio || 0).getTime() - new Date(a.fechaInicio || 0).getTime()).slice(0, 5);
     const proyectosRecientesMapped = recientes.map(p => ({
       id: p.id,
       nombre: p.nombre,

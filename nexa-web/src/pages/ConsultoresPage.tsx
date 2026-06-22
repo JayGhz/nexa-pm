@@ -6,7 +6,7 @@ import { PageSkeleton } from '../components/shared/PageSkeleton';
 import { EmptyState } from '../components/shared/EmptyState';
 import { ConsultorFormDialog } from '../components/shared/ConsultorFormDialog';
 import { StatCard } from '../components/shared/StatCard';
-import { Search, Users, MoreHorizontal, ShieldAlert, UserIcon, Briefcase, Clock, Activity, Plus } from 'lucide-react';
+import { Search, Users, ShieldAlert, UserIcon, Briefcase, Clock, Activity, Plus } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Badge } from '../components/ui/badge';

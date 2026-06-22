@@ -52,7 +52,7 @@ export function ActividadAreaChart({ historial }: ActividadAreaChartProps) {
           <CardTitle>Esfuerzo del Equipo</CardTitle>
           <CardDescription>Horas registradas por proyecto</CardDescription>
         </div>
-        <Select value={rango} onValueChange={setRango}>
+        <Select value={rango} onValueChange={(val) => val && setRango(val)}>
           <SelectTrigger className="w-[160px]">
             {rango ? (
               <span className="flex flex-1 text-left">{rango} días</span>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Proyecto, Cliente, ProyectoRequest, EstadoProyecto } from '../../types';
+import type { Proyecto, Cliente, EstadoProyecto } from '../../types';
 import { createProyecto, updateProyecto } from '../../api/proyectos';
 import { getClientes } from '../../api/clientes';
 import { Button } from '../ui/button';
@@ -44,7 +44,7 @@ export function ProyectoFormDialog({ open, onOpenChange, proyectoToEdit, onSucce
   const [isLoading, setIsLoading] = useState(false);
 
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<ProyectoFormValues>({
-    resolver: zodResolver(proyectoSchema),
+    resolver: zodResolver(proyectoSchema) as any,
     defaultValues: {
       estado: 'PLANEADO',
       presupuesto: 0,
@@ -74,7 +74,7 @@ export function ProyectoFormDialog({ open, onOpenChange, proyectoToEdit, onSucce
     try {
       setIsLoading(true);
       if (proyectoToEdit) {
-        await updateProyecto(proyectoToEdit.id, data);
+        await updateProyecto(proyectoToEdit?.id || '', data);
         toast.success('Proyecto actualizado exitosamente');
       } else {
         await createProyecto(data);
@@ -115,7 +115,7 @@ export function ProyectoFormDialog({ open, onOpenChange, proyectoToEdit, onSucce
 
             <div className="space-y-2">
               <Label htmlFor="clienteId">Cliente</Label>
-              <Select value={watch('clienteId') || ''} onValueChange={(val) => setValue('clienteId', val, { shouldValidate: true })}>
+              <Select value={watch('clienteId') || ''} onValueChange={(val) => val && setValue('clienteId', val, { shouldValidate: true })}>
                 <SelectTrigger className={errors.clienteId ? 'border-destructive' : ''}>
                   <SelectValue placeholder="Seleccionar cliente">
                     {clientes.find(c => c.id === watch('clienteId'))?.razonSocial || 'Seleccionar cliente'}
@@ -132,7 +132,7 @@ export function ProyectoFormDialog({ open, onOpenChange, proyectoToEdit, onSucce
 
             <div className="space-y-2">
               <Label htmlFor="estado">Estado</Label>
-              <Select value={watch('estado') || 'PLANEADO'} onValueChange={(val: EstadoProyecto) => setValue('estado', val, { shouldValidate: true })}>
+              <Select value={watch('estado') || 'PLANEADO'} onValueChange={(val) => val && setValue('estado', val as EstadoProyecto, { shouldValidate: true })}>
                 <SelectTrigger className={errors.estado ? 'border-destructive' : ''}>
                   <SelectValue placeholder="Seleccionar estado">
                     {watch('estado') === 'PLANEADO' ? 'Planeado' :

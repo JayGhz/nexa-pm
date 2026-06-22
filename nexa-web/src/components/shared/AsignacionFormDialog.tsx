@@ -38,7 +38,7 @@ export function AsignacionFormDialog({ open, onOpenChange, proyectoId, onSuccess
   const [isLoading, setIsLoading] = useState(false);
 
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<AsignacionFormValues>({
-    resolver: zodResolver(asignacionSchema),
+    resolver: zodResolver(asignacionSchema) as any,
     defaultValues: {
       horasAsignadas: 10
     }
@@ -56,7 +56,7 @@ export function AsignacionFormDialog({ open, onOpenChange, proyectoId, onSuccess
   const onSubmit = async (data: AsignacionFormValues) => {
     try {
       setIsLoading(true);
-      await createAsignacion({ ...data, proyectoId });
+      await createAsignacion({ ...data, proyectoId: proyectoId || '' });
       toast.success('Consultor asignado exitosamente');
       reset();
       onSuccess();
@@ -84,7 +84,7 @@ export function AsignacionFormDialog({ open, onOpenChange, proyectoId, onSuccess
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="usuarioId">Consultor</Label>
-            <Select value={watch('usuarioId') || ''} onValueChange={(val) => setValue('usuarioId', val)}>
+            <Select value={watch('usuarioId') || ''} onValueChange={(val) => val && setValue('usuarioId', val)}>
               <SelectTrigger className={errors.usuarioId ? 'border-destructive' : ''}>
                 <SelectValue placeholder="Seleccionar consultor">
                   {consultores.find(c => c.id === watch('usuarioId')) 
