@@ -22,7 +22,8 @@ public record DashboardResponse(
     Double avancePromedioGeneral,
 
     /** Los 5 proyectos más recientes con su último avance */
-    List<ProyectoResumen> proyectosRecientes
+    List<ProyectoResumen> proyectosRecientes,
+    List<ActividadDiariaDTO> historialActividad
 ) {
     /**
      * Resumen ligero de un proyecto para el dashboard.
@@ -32,6 +33,15 @@ public record DashboardResponse(
         String nombre,
         String estado,
         String clienteNombre,
-        Integer ultimoAvance
+        Integer ultimoAvance,
+        List<AvanceHistorico> historial
+    ) {}
+
+    /**
+     * Registro de avance en una fecha específica.
+     */
+    public record AvanceHistorico(
+        java.time.LocalDate fecha,
+        Integer avance
     ) {}
 }
