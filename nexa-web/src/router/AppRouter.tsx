@@ -9,7 +9,7 @@ import ProyectoDetailPage from '../pages/ProyectoDetailPage';
 const ClientesPage = () => <div>Clientes</div>;
 const ClienteDetailPage = () => <div>Cliente Detalle</div>;
 const ConsultoresPage = () => <div>Consultores</div>;
-const PerfilPage = () => <div>Perfil</div>;
+import PerfilPage from '../pages/PerfilPage';
 
 export default function AppRouter() {
   return (

@@ -30,6 +30,11 @@ public class SeguimientoService {
         var proyecto = proyectoRepository.findById(request.proyectoId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Proyecto", request.proyectoId()));
 
+        if (seguimientoRepository.existsByProyectoIdAndFechaAndAvanceAndComentario(
+                request.proyectoId(), request.fecha(), request.avance(), request.comentario())) {
+            throw new com.jay17.nexapm.exception.BusinessException("Este avance ya ha sido registrado previamente.");
+        }
+
         Seguimiento seguimiento = Seguimiento.builder()
                 .proyecto(proyecto)
                 .fecha(request.fecha())

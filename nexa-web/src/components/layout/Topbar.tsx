@@ -40,14 +40,9 @@ export function Topbar() {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/perfil')} className="cursor-pointer">
-                  Perfil
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/perfil')} className="cursor-pointer">
+                Perfil
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => { logout(); navigate('/login'); }} className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10">
                 Cerrar Sesión
               </DropdownMenuItem>

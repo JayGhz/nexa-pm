@@ -3,6 +3,7 @@ import { Home, Briefcase, Users, LayoutDashboard, LogOut } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+import { Logo } from '../shared/Logo';
 import { Link } from 'react-router-dom';
 
 export function AppSidebar() {
@@ -31,9 +32,7 @@ export function AppSidebar() {
       <SidebarHeader className="h-16 px-4 flex justify-center border-b border-border/50 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:border-transparent">
         <div className="flex w-full items-center justify-between group-data-[collapsible=icon]:justify-center">
           <div className="flex items-center gap-2 overflow-hidden group-data-[collapsible=icon]:hidden">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
-              N
-            </div>
+            <Logo className="w-8 h-8 text-primary shrink-0" />
             <span className="font-heading font-bold text-lg tracking-tight whitespace-nowrap">NexaPM</span>
           </div>
           <SidebarTrigger />

@@ -8,7 +8,7 @@ interface StatusBadgeProps {
 export function StatusBadge({ status }: StatusBadgeProps) {
   switch (status) {
     case 'PLANEADO':
-      return <Badge variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200">Planeado</Badge>;
+      return <Badge variant="secondary" className="bg-slate-200 text-slate-800 hover:bg-slate-300">Planeado</Badge>;
     case 'EN_EJECUCION':
       return <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">En Ejecución</Badge>;
     case 'PAUSADO':

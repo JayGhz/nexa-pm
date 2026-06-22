@@ -13,7 +13,7 @@ import { SeguimientoFormDialog } from '../components/shared/SeguimientoFormDialo
 import { AsignacionFormDialog } from '../components/shared/AsignacionFormDialog';
 import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardAction } from '../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { 
   ArrowLeft, Edit, Trash2, Plus, Users, Calendar, DollarSign, Activity, Building, Clock
@@ -46,8 +46,20 @@ export default function ProyectoDetailPage() {
         getAsignacionesByProyecto(id)
       ]);
       setProyecto(projData);
+      // Deduplicar seguimientos por si la base de datos retorna registros duplicados
+      const uniqueSegs = [];
+      const seen = new Set();
+      for (const seg of segData) {
+        // Usamos una clave compuesta para identificar duplicados idénticos
+        const key = `${seg.fecha}-${seg.avance}-${seg.comentario}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          uniqueSegs.push(seg);
+        }
+      }
+
       // Sort by newest first
-      setSeguimientos(segData.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()));
+      setSeguimientos(uniqueSegs.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()));
       setAsignaciones(asigData);
     } catch (error) {
       toast.error('Error al cargar los detalles del proyecto');
@@ -99,21 +111,34 @@ export default function ProyectoDetailPage() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
       {/* HEADER */}
       <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/proyectos')}>
-            <ArrowLeft className="h-5 w-5" />
+        {/* Breadcrumb / Back Button */}
+        <div>
+          <Button variant="ghost" size="sm" className="-ml-3 text-muted-foreground hover:text-foreground" onClick={() => navigate('/proyectos')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Volver a proyectos
           </Button>
-          <div className="flex flex-col flex-1">
+        </div>
+
+        <div className="flex justify-between items-start gap-4">
+          <div className="flex flex-col gap-1">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-3xl font-heading font-bold tracking-tight">{proyecto.nombre}</h2>
-              <StatusBadge status={proyecto.estado} />
+              <div className="mt-1.5">
+                <StatusBadge status={proyecto.estado} />
+              </div>
             </div>
+            
             <p className="text-muted-foreground flex items-center gap-2 mt-1">
               <Building className="h-4 w-4" /> {proyecto.clienteNombre || 'Sin cliente'}
             </p>
+            
+            <p className="text-sm border-l-4 border-primary pl-4 py-1 mt-4 text-muted-foreground max-w-4xl leading-relaxed">
+              {proyecto.descripcion}
+            </p>
           </div>
+
           {isAdmin && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 shrink-0">
               <Button variant="outline" onClick={() => setIsEditOpen(true)}>
                 <Edit className="mr-2 h-4 w-4" /> Editar
               </Button>
@@ -124,10 +149,6 @@ export default function ProyectoDetailPage() {
           )}
         </div>
       </div>
-
-      <p className="text-sm border-l-4 border-primary pl-4 py-1 text-muted-foreground">
-        {proyecto.descripcion}
-      </p>
 
       {/* STATS CARDS */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -172,12 +193,12 @@ export default function ProyectoDetailPage() {
       <div className="grid gap-6 md:grid-cols-3">
         {/* CHART SECTION */}
         <Card className="md:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Evolución de Avance</CardTitle>
-              <CardDescription>Progreso del proyecto a lo largo del tiempo</CardDescription>
+          <CardHeader className="flex flex-row items-center gap-4 space-y-0">
+            <div className="flex flex-col flex-1 min-w-0 space-y-1">
+              <CardTitle className="truncate">Evolución de Avance</CardTitle>
+              <CardDescription className="truncate">Progreso del proyecto a lo largo del tiempo</CardDescription>
             </div>
-            <Button size="sm" onClick={() => setIsSeguimientoOpen(true)}>
+            <Button className="h-9 px-4 py-2 text-sm shrink-0" onClick={() => setIsSeguimientoOpen(true)}>
               <Plus className="mr-2 h-4 w-4" /> Agregar Avance
             </Button>
           </CardHeader>
@@ -185,7 +206,7 @@ export default function ProyectoDetailPage() {
             {seguimientos.length > 0 ? (
               <div className="h-[300px] w-full mt-4" style={{ minWidth: 0 }}>
                 <ResponsiveContainer width="100%" height="100%" minHeight={300}>
-                  <AreaChart data={seguimientos} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <AreaChart data={[...seguimientos].reverse()} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorAvance" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.4}/>
@@ -222,10 +243,13 @@ export default function ProyectoDetailPage() {
 
         {/* ASIGNACIONES SECTION */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle>Equipo</CardTitle>
+          <CardHeader className="flex flex-row items-center gap-4 space-y-0">
+            <div className="flex flex-col flex-1 min-w-0 space-y-1">
+              <CardTitle className="truncate">Equipo</CardTitle>
+              <CardDescription className="truncate">Consultores asignados</CardDescription>
+            </div>
             {isAdmin && (
-              <Button size="sm" variant="outline" onClick={() => setIsAsignacionOpen(true)}>
+              <Button variant="outline" className="h-9 px-4 py-2 text-sm shrink-0" onClick={() => setIsAsignacionOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" /> Asignar
               </Button>
             )}
@@ -235,11 +259,11 @@ export default function ProyectoDetailPage() {
               <div className="space-y-4 mt-4">
                 {asignaciones.map((asig) => (
                   <div key={asig.id} className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">{asig.usuarioNombre}</p>
-                      <p className="text-xs text-muted-foreground">{asig.usuarioCorreo}</p>
+                    <div className="min-w-0 flex-1 mr-4">
+                      <p className="text-sm font-medium truncate">{asig.usuarioNombre}</p>
+                      <p className="text-xs text-muted-foreground truncate">{asig.usuarioCorreo}</p>
                     </div>
-                    <div className="text-sm font-semibold bg-primary/10 text-primary px-2 py-1 rounded-md">
+                    <div className="text-sm font-semibold bg-primary/10 text-primary px-2 py-1 rounded-md shrink-0">
                       {asig.horasAsignadas} hrs
                     </div>
                   </div>

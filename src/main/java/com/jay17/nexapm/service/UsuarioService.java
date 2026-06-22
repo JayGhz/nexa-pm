@@ -54,6 +54,14 @@ public class UsuarioService {
     }
 
     @Transactional
+    public UsuarioResponse actualizar(UUID id, com.jay17.nexapm.dto.request.UsuarioUpdateRequest request) {
+        var usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> ResourceNotFoundException.of("Usuario", id));
+        usuario.setNombre(request.nombre());
+        return usuarioMapper.toResponse(usuarioRepository.save(usuario));
+    }
+
+    @Transactional
     public void eliminar(UUID id) {
         if (!usuarioRepository.existsById(id)) {
             throw ResourceNotFoundException.of("Usuario", id);

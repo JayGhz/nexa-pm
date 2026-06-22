@@ -37,7 +37,7 @@ export function AsignacionFormDialog({ open, onOpenChange, proyectoId, onSuccess
   const [consultores, setConsultores] = useState<Usuario[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<AsignacionFormValues>({
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<AsignacionFormValues>({
     resolver: zodResolver(asignacionSchema),
     defaultValues: {
       horasAsignadas: 10
@@ -75,7 +75,7 @@ export function AsignacionFormDialog({ open, onOpenChange, proyectoId, onSuccess
     }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Asignar Consultor</DialogTitle>
+          <DialogTitle className="font-bold text-lg">Asignar Consultor</DialogTitle>
           <DialogDescription>
             Asigna un consultor a este proyecto especificando las horas.
           </DialogDescription>
@@ -84,9 +84,13 @@ export function AsignacionFormDialog({ open, onOpenChange, proyectoId, onSuccess
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="usuarioId">Consultor</Label>
-            <Select onValueChange={(val) => setValue('usuarioId', val)}>
+            <Select value={watch('usuarioId') || ''} onValueChange={(val) => setValue('usuarioId', val)}>
               <SelectTrigger className={errors.usuarioId ? 'border-destructive' : ''}>
-                <SelectValue placeholder="Seleccionar consultor" />
+                <SelectValue placeholder="Seleccionar consultor">
+                  {consultores.find(c => c.id === watch('usuarioId')) 
+                    ? `${consultores.find(c => c.id === watch('usuarioId'))?.nombre} (${consultores.find(c => c.id === watch('usuarioId'))?.correo})`
+                    : 'Seleccionar consultor'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {consultores.map(c => (

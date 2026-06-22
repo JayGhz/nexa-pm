@@ -3,7 +3,7 @@ import { useAuthStore } from '../store/authStore';
 import { updateUsuario } from '../api/usuarios';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Label } from '../ui/label';
+import { Label } from '../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { ShieldAlert, UserIcon, Loader2 } from 'lucide-react';
@@ -28,7 +28,11 @@ export default function PerfilPage() {
     
     try {
       setIsLoading(true);
-      const updatedUser = await updateUsuario(usuario.id, { nombre });
+      // El backend requiere el objeto completo para un PUT, no solo el campo modificado
+      const updatedUser = await updateUsuario(usuario.id, { 
+        ...usuario, 
+        nombre 
+      });
       if (token) {
         setAuth(token, updatedUser);
       }

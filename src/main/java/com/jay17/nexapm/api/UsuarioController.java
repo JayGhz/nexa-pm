@@ -44,6 +44,14 @@ public class UsuarioController {
         return usuarioService.obtenerPorId(id);
     }
 
+    @PutMapping("/{id}")
+    @Operation(summary = "Actualizar datos básicos de un usuario")
+    public UsuarioResponse actualizar(
+            @PathVariable UUID id,
+            @jakarta.validation.Valid @RequestBody com.jay17.nexapm.dto.request.UsuarioUpdateRequest request) {
+        return usuarioService.actualizar(id, request);
+    }
+
     @PatchMapping("/{id}/activar")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Activar usuario")

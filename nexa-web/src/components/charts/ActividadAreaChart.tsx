@@ -67,14 +67,22 @@ export function ActividadAreaChart({ historial }: ActividadAreaChartProps) {
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent className="flex-1 mt-4">
+      <CardContent className="flex-1 mt-2">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 mb-6 px-1">
+          {proyectosLista.map((proyecto, index) => (
+            <div key={proyecto} className="flex items-center gap-2 text-sm text-muted-foreground max-w-[200px]" title={proyecto}>
+              <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: colores[index % colores.length] }} />
+              <span className="truncate">{proyecto}</span>
+            </div>
+          ))}
+        </div>
         <div className="w-full h-[300px]" style={{ minWidth: 0 }}>
           <ResponsiveContainer width="100%" height="100%" minHeight={300}>
             <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 {proyectosLista.map((proyecto, index) => (
-                  <linearGradient key={`color-${proyecto}`} id={`color-${index}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={colores[index % colores.length]} stopOpacity={0.4}/>
+                  <linearGradient key={proyecto} id={`color-${index}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={colores[index % colores.length]} stopOpacity={0.3}/>
                     <stop offset="95%" stopColor={colores[index % colores.length]} stopOpacity={0}/>
                   </linearGradient>
                 ))}
@@ -87,16 +95,9 @@ export function ActividadAreaChart({ historial }: ActividadAreaChartProps) {
                 fontSize={12} 
                 tickMargin={10} 
                 minTickGap={30}
-                tickFormatter={(value) => {
-                  const d = new Date(value);
-                  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-                }}
+                tickFormatter={(value) => new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
               />
-              <YAxis 
-                tickLine={false} 
-                axisLine={false} 
-                fontSize={12} 
-              />
+              <YAxis tickLine={false} axisLine={false} fontSize={12} domain={[0, 'auto']} />
               <Tooltip 
                 cursor={{ strokeDasharray: '3 3' }}
                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px', fontFamily: 'inherit' }}
@@ -107,7 +108,6 @@ export function ActividadAreaChart({ historial }: ActividadAreaChartProps) {
                   key={proyecto}
                   type="monotone" 
                   dataKey={proyecto} 
-                  stackId="1"
                   stroke={colores[index % colores.length]} 
                   fillOpacity={1} 
                   fill={`url(#color-${index})`} 
@@ -115,14 +115,6 @@ export function ActividadAreaChart({ historial }: ActividadAreaChartProps) {
               ))}
             </AreaChart>
           </ResponsiveContainer>
-        </div>
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4 mt-6">
-          {proyectosLista.map((proyecto, index) => (
-            <div key={proyecto} className="flex items-center gap-2 text-sm text-muted-foreground max-w-[200px]" title={proyecto}>
-              <span className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: colores[index % colores.length] }} />
-              <span className="truncate">{proyecto}</span>
-            </div>
-          ))}
         </div>
       </CardContent>
     </Card>

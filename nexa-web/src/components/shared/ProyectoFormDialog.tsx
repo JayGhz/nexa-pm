@@ -27,7 +27,7 @@ const proyectoSchema = z.object({
   presupuesto: z.coerce.number().min(0, 'El presupuesto debe ser mayor a 0'),
   fechaInicio: z.string().min(1, 'Fecha requerida'),
   fechaFin: z.string().min(1, 'Fecha requerida'),
-  clienteId: z.string().uuid('Seleccione un cliente válido'),
+  clienteId: z.string().min(1, 'Seleccione un cliente válido'),
 });
 
 type ProyectoFormValues = z.infer<typeof proyectoSchema>;
@@ -43,7 +43,7 @@ export function ProyectoFormDialog({ open, onOpenChange, proyectoToEdit, onSucce
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<ProyectoFormValues>({
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<ProyectoFormValues>({
     resolver: zodResolver(proyectoSchema),
     defaultValues: {
       estado: 'PLANEADO',
@@ -109,15 +109,17 @@ export function ProyectoFormDialog({ open, onOpenChange, proyectoToEdit, onSucce
 
             <div className="space-y-2 col-span-2">
               <Label htmlFor="descripcion">Descripción</Label>
-              <Textarea id="descripcion" {...register('descripcion')} rows={3} className={errors.descripcion ? 'border-destructive' : ''} />
+              <Textarea id="descripcion" {...register('descripcion')} rows={3} className={`resize-none ${errors.descripcion ? 'border-destructive' : ''}`} />
               {errors.descripcion && <p className="text-xs text-destructive">{errors.descripcion.message}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="clienteId">Cliente</Label>
-              <Select onValueChange={(val) => setValue('clienteId', val)} defaultValue={proyectoToEdit?.clienteId}>
+              <Select value={watch('clienteId') || ''} onValueChange={(val) => setValue('clienteId', val, { shouldValidate: true })}>
                 <SelectTrigger className={errors.clienteId ? 'border-destructive' : ''}>
-                  <SelectValue placeholder="Seleccionar cliente" />
+                  <SelectValue placeholder="Seleccionar cliente">
+                    {clientes.find(c => c.id === watch('clienteId'))?.razonSocial || 'Seleccionar cliente'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {clientes.map(c => (
@@ -130,9 +132,14 @@ export function ProyectoFormDialog({ open, onOpenChange, proyectoToEdit, onSucce
 
             <div className="space-y-2">
               <Label htmlFor="estado">Estado</Label>
-              <Select onValueChange={(val: EstadoProyecto) => setValue('estado', val)} defaultValue={proyectoToEdit?.estado || 'PLANEADO'}>
+              <Select value={watch('estado') || 'PLANEADO'} onValueChange={(val: EstadoProyecto) => setValue('estado', val, { shouldValidate: true })}>
                 <SelectTrigger className={errors.estado ? 'border-destructive' : ''}>
-                  <SelectValue placeholder="Seleccionar estado" />
+                  <SelectValue placeholder="Seleccionar estado">
+                    {watch('estado') === 'PLANEADO' ? 'Planeado' :
+                     watch('estado') === 'EN_EJECUCION' ? 'En Ejecución' :
+                     watch('estado') === 'PAUSADO' ? 'Pausado' :
+                     watch('estado') === 'FINALIZADO' ? 'Finalizado' : 'Seleccionar estado'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="PLANEADO">Planeado</SelectItem>

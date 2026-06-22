@@ -65,7 +65,7 @@ export function SeguimientoFormDialog({ open, onOpenChange, proyectoId, onSucces
     }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Registrar Avance</DialogTitle>
+          <DialogTitle className="font-bold text-lg">Registrar Avance</DialogTitle>
           <DialogDescription>
             Agrega un nuevo registro de avance para este proyecto.
           </DialogDescription>

@@ -15,6 +15,9 @@ public interface SeguimientoRepository extends JpaRepository<Seguimiento, UUID> 
 
     List<Seguimiento> findByProyectoIdOrderByFechaDesc(UUID proyectoId);
 
+    boolean existsByProyectoIdAndFechaAndAvanceAndComentario(
+            UUID proyectoId, java.time.LocalDate fecha, Integer avance, String comentario);
+
     /**
      * Obtiene el último avance registrado para un proyecto.
      */
